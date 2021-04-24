@@ -126,7 +126,7 @@ background-color: #4169E1;
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_2">
+        <widget class="QPushButton" name="configure_port_button">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -134,7 +134,7 @@ background-color: #4169E1;
           </size>
          </property>
          <property name="text">
-          <string>Second_page</string>
+          <string>Configure port</string>
          </property>
         </widget>
        </item>
@@ -236,10 +236,14 @@ font-size: 12pt
          <bool>false</bool>
         </property>
         <property name="styleSheet">
-         <string notr="true"/>
+         <string notr="true">QComboBox {
+background-color: #343434;
+font-size: 12pt;
+color: #FFFFFF;
+}</string>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="Welcome_page">
          <property name="autoFillBackground">
@@ -296,7 +300,7 @@ font-size: 11pt;
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="Port_configuration">
+        <widget class="QWidget" name="New_port_configuration">
          <property name="autoFillBackground">
           <bool>false</bool>
          </property>
@@ -548,10 +552,78 @@ color: #FFFFFF;
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="page_2">
+        <widget class="QWidget" name="Port_configuration">
          <property name="autoFillBackground">
           <bool>false</bool>
          </property>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <widget class="QFrame" name="frame_2">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <widget class="QLabel" name="label">
+             <property name="geometry">
+              <rect>
+               <x>120</x>
+               <y>10</y>
+               <width>251</width>
+               <height>31</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Which port you want do configure:</string>
+             </property>
+            </widget>
+            <widget class="QComboBox" name="port_comboBox">
+             <property name="geometry">
+              <rect>
+               <x>100</x>
+               <y>60</y>
+               <width>281</width>
+               <height>51</height>
+              </rect>
+             </property>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="frame_3">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <widget class="QSpinBox" name="port_capacity_change">
+             <property name="geometry">
+              <rect>
+               <x>30</x>
+               <y>50</y>
+               <width>131</width>
+               <height>22</height>
+              </rect>
+             </property>
+            </widget>
+            <widget class="QLabel" name="num_of_ports">
+             <property name="geometry">
+              <rect>
+               <x>280</x>
+               <y>50</y>
+               <width>161</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </widget>
       </item>
