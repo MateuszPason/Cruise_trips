@@ -53,6 +53,7 @@ class CEOAccountView(QDialog):
         port_capacity = self.capacity_spinBox.value()
         if port_city and port_capacity:
             AddPortObjectToDatabase.NewPortToDatabase(port_country, port_city, port_capacity)
+            print('Success')
 
     def back_to_first_page(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.Welcome_page)
