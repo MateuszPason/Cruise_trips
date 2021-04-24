@@ -1,5 +1,5 @@
 from DatabaseConnection import *
-import Successful_register
+import SuccessfulNewEntryInDatabaseInfo
 
 
 class AddClient:
@@ -14,7 +14,7 @@ class AddClient:
         cursor.execute(statement, (id_incrementation, email, first_name, last_name, password, sex, country_iso,
                                    phone_number))
         connection.commit()
-        Successful_register.SuccessfulRegister()
+        SuccessfulNewEntryInDatabaseInfo.SuccessfulRegister()
 
 
 class AddEmployee:
@@ -29,4 +29,4 @@ class AddEmployee:
         cursor.execute(statement, (email, id_incrementation, first_name, last_name, password, country_iso,
                                    phone_number, register_key))
         connection.commit()
-        Successful_register.SuccessfulRegister()
+        SuccessfulNewEntryInDatabaseInfo.SuccessfulRegister()

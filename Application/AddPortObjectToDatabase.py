@@ -1,4 +1,5 @@
 from DatabaseConnection import *
+import SuccessfulNewEntryInDatabaseInfo
 
 
 class NewPortToDatabase:
@@ -11,3 +12,4 @@ class NewPortToDatabase:
         statement = 'INSERT INTO ports (port_id, country_iso, city, capacity) VALUES (:1, :2, :3, :4)'
         cursor.execute(statement, (id_increment, country_iso, city, capacity))
         connection.commit()
+        SuccessfulNewEntryInDatabaseInfo.SuccessfulNewPort()
