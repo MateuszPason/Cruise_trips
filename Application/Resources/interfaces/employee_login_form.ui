@@ -39,7 +39,7 @@ font-size: 13pt;
 
 QLabel {
 font-size: 13pt;
-color: #FFFFFF;
+color: #4169E1;
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">

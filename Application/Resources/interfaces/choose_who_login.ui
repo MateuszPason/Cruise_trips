@@ -20,27 +20,19 @@
    <string>Dialog</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: #343434;
-font-size: 13pt;</string>
+   <string notr="true">QLabel{
+color: #4169E1;
+font-size:12pt;
+}
+QDialog{
+background-color: #343434;
+font-size: 13pt;
+}
+QPushButton{
+font-size:12pt;
+}</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="0">
-    <widget class="QPushButton" name="client_button">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>40</height>
-      </size>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: #888888;
-color: #FFFFFF;</string>
-     </property>
-     <property name="text">
-      <string>Client</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="1">
     <widget class="QPushButton" name="employee_button">
      <property name="minimumSize">
@@ -55,6 +47,23 @@ color: #FFFFFF;</string>
      </property>
      <property name="text">
       <string>Employee</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QPushButton" name="client_button">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>40</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #888888;
+color: #FFFFFF;</string>
+     </property>
+     <property name="text">
+      <string>Client</string>
      </property>
     </widget>
    </item>
@@ -73,8 +82,7 @@ color: #FFFFFF;</string>
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">color: #FFFFFF;
-font-size: 12pt;</string>
+      <string notr="true"/>
      </property>
      <property name="text">
       <string>Choose account type to login as:</string>
