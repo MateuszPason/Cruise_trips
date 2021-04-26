@@ -3,6 +3,8 @@ import SuccessfulNewEntryInDatabaseInfo
 
 
 class NewPortToDatabase:
+    """Fetch primary key value and add new port to database and show new window with information that
+     everything is fine"""
     def __init__(self, country, city, capacity):
         cursor.execute('SELECT ports_seq.nextval FROM dual')
         id_increment, = cursor.fetchone()
