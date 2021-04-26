@@ -71,4 +71,3 @@ class CEOAccountView(QDialog):
         self.ui.stackedWidget.setCurrentWidget(self.ui.Welcome_page)
 
 
-"""Oprogramować jak jest lamany klucz głowny"""
