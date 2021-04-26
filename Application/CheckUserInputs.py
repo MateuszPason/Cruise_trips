@@ -91,10 +91,16 @@ class CheckRegisterDetails:
 
 
 class CheckNewPortDetails:
-    def check_city(self, city, set_error_city_label):
+    def check_city_and_port_uniqueness(self, country_iso, city, set_error_city_label, set_error_port_label):
         city.strip()
         if len(city) == 0:
             set_error_city_label.setText('Enter valid city')
             return False
         set_error_city_label.setText('')
+        statement = 'SELECT * FROM ports WHERE country_iso = :given_ctr_iso AND city = :given_city'
+        DatabaseConnection.cursor.execute(statement, given_ctr_iso=country_iso, given_city=city)
+        if len(DatabaseConnection.cursor.fetchall()) > 0:
+            set_error_port_label.setText('There is such port')
+            return False
+        set_error_port_label.setText('')
         return city
