@@ -236,14 +236,10 @@ font-size: 12pt
          <bool>false</bool>
         </property>
         <property name="styleSheet">
-         <string notr="true">QComboBox {
-background-color: #343434;
-font-size: 12pt;
-color: #FFFFFF;
-}</string>
+         <string notr="true"/>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="Welcome_page">
          <property name="autoFillBackground">
