@@ -67,6 +67,8 @@ class CEOAccountView(QDialog):
 
     def open_port_configuration(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.Port_configuration)
+        """Prevents duplicating ports in comboBox"""
+        self.port_comboBox.clear()
         """Get number of rows in ports table"""
         result, = DatabaseConnection.cursor.execute("SELECT COUNT(*) FROM ports").fetchone()
 
