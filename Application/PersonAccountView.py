@@ -2,7 +2,7 @@ import DatabaseConnection
 from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import QDialog
 import GlobalFunctions
-from CheckUserInputs import CheckNewPortDetails
+from CheckUserInputs import CheckNewPortObjectDetails
 import AddPortObjectToDatabase
 
 
@@ -42,6 +42,7 @@ class CEOAccountView(QDialog):
         self.ui.stackedWidget.setCurrentWidget(self.ui.Welcome_page)
         self.new_port_button.clicked.connect(self.open_new_port_configuration)
         self.configure_port_button.clicked.connect(self.open_port_configuration)
+        self.new_ship_button.clicked.connect(self.open_new_ship_configuration)
 
     def open_new_port_configuration(self):
         """Opens widget with form for new port. After button is clicked, starts to check all ports details"""
@@ -53,7 +54,7 @@ class CEOAccountView(QDialog):
 
     def check_all_port_details(self):
         """Check if user entered valid port details and/or didn't violate primary key"""
-        port_details = CheckNewPortDetails()
+        port_details = CheckNewPortObjectDetails()
         port_country = self.country_comboBox.currentText()
         port_capacity = self.capacity_spinBox.value()
         get_ctr_iso = 'SELECT country_iso FROM countries WHERE country_name = :given_name'
@@ -67,16 +68,8 @@ class CEOAccountView(QDialog):
 
     def open_port_configuration(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.Port_configuration)
-        """Prevents duplicating ports in comboBox"""
-        self.port_comboBox.clear()
-        """Get number of rows in ports table"""
-        result, = DatabaseConnection.cursor.execute("SELECT COUNT(*) FROM ports").fetchone()
-
-        """Load all ports that user can modify"""
-        port_identification = DatabaseConnection.cursor.execute('SELECT country_iso, city FROM ports').fetchall()
-        for i in range(result):
-            item_to_port_combobox = port_identification[i][0] + ' ' + port_identification[i][1]
-            self.port_comboBox.addItem(item_to_port_combobox)
+        self.emp_title_back_to_first_page.clicked.connect(self.back_to_first_page)
+        GlobalFunctions.load_ports(self.port_comboBox)
 
         self.change_port_details_button.clicked.connect(self.enter_updated_port_details_to_db)
 
@@ -90,6 +83,28 @@ class CEOAccountView(QDialog):
         DatabaseConnection.connection.commit()
         prompt_user_info = 'Port updated, capacity set to: {}'.format(new_capacity)
         self.successful_update_label.setText(prompt_user_info)
+
+    def open_new_ship_configuration(self):
+        self.ui.stackedWidget.setCurrentWidget(self.ui.New_ship_configuration)
+        self.emp_title_back_to_first_page.clicked.connect(self.back_to_first_page)
+
+        GlobalFunctions.load_ports(self.port_identification_comboBox)
+        self.add_new_ship_button.clicked.connect(self.check_all_ship_details)
+
+    def check_all_ship_details(self):
+        ship_details = CheckNewPortObjectDetails()
+        ship_name = self.ship_name_edit.text()
+        capacity = self.ship_capacity_spinBox.value()
+        country_iso = self.port_identification_comboBox.currentText()[0:3]
+        port_city = self.port_identification_comboBox.currentText()[4:]
+        get_port_id = 'SELECT port_id FROM ports WHERE country_iso = :given_ctr_iso AND city = :given_city'
+        DatabaseConnection.cursor.execute(get_port_id, given_ctr_iso=country_iso, given_city=port_city)
+        port_id, = DatabaseConnection.cursor.fetchone()
+        valid_ship_details = ship_details.check_new_ship_details(ship_name, port_id, self.ship_name_label_error,
+                                                                 self.error_ship_label)
+        if valid_ship_details:
+            self.close()
+            AddPortObjectToDatabase.NewShipToDatabase(ship_name, capacity, port_id)
 
     def back_to_first_page(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.Welcome_page)
