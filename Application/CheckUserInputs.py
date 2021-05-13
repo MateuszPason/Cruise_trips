@@ -90,7 +90,7 @@ class CheckRegisterDetails:
         return register_key
 
 
-class CheckNewPortDetails:
+class CheckNewPortObjectDetails:
     def check_city_and_port_uniqueness(self, country_iso, city, set_error_city_label, set_error_port_label):
         city.strip()
         if len(city) == 0:
@@ -104,3 +104,17 @@ class CheckNewPortDetails:
             return False
         set_error_port_label.setText('')
         return city
+
+    def check_new_ship_details(self, ship_name, port_id, set_error_ship_name_label, set_error_ship_label):
+        ship_name.strip()
+        if len(ship_name) == 0:
+            set_error_ship_name_label.setText('Enter ship name')
+            return False
+        set_error_ship_name_label.setText('')
+        statement = 'SELECT * FROM ships WHERE ship_name = :given_ship_name AND home_port_id = :given_port'
+        DatabaseConnection.cursor.execute(statement, given_ship_name=ship_name, given_port=port_id)
+        if len(DatabaseConnection.cursor.fetchall()) > 0:
+            set_error_ship_label.setText('There is such ship')
+            return False
+        set_error_ship_label.setText('')
+        return True
