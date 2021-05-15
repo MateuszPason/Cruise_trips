@@ -18,3 +18,10 @@ def load_ports(ships_combobox):
     for i in range(result):
         item_to_port_combobox = port_identification[i][0] + ' ' + port_identification[i][1]
         ships_combobox.addItem(item_to_port_combobox)
+
+
+def load_port_ids(ports_id_combobox):
+    ports_id_combobox.clear()
+    DatabaseConnection.cursor.execute('SELECT ship_name FROM ships')
+    for i in DatabaseConnection.cursor.fetchall():
+        ports_id_combobox.addItem(str(i[0]))

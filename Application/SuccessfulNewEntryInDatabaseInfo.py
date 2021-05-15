@@ -27,4 +27,17 @@ class SuccessfulNewPort(QDialog):
 
     def to_ceo_panel(self):
         self.close()
-        PersonAccountView.CEOAccountView()
+        PersonAccountView.CEOAccountOptions()
+
+
+class SuccessfulNewShip(QDialog):
+    """Load interface after successful ship add"""
+    def __init__(self):
+        super(SuccessfulNewShip, self).__init__()
+        self.ui = loadUi("Resources/interfaces/Successful_ship_add.ui", self)
+        self.show()
+        self.ship_added_button.clicked.connect(self.to_ceo_panel)
+
+    def to_ceo_panel(self):
+        self.close()
+        PersonAccountView.CEOAccountOptions()

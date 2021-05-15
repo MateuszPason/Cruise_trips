@@ -1,7 +1,7 @@
 import DatabaseConnection
 from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import QDialog
-import GlobalFunctions
+import LoadDataToComboBox
 from CheckUserInputs import CheckNewPortObjectDetails
 import AddPortObjectToDatabase
 
@@ -30,26 +30,27 @@ class WhichEmployeeAccountView(QDialog):
         DatabaseConnection.cursor.execute(get_account_type, given_email=email)
         account_type, = DatabaseConnection.cursor.fetchone()
         if account_type is None:
-            CEOAccountView()
+            CEOAccountOptions()
 
 
-class CEOAccountView(QDialog):
+class CEOAccountOptions(QDialog):
     """All details that CEO can see on the interface"""
     def __init__(self):
-        super(CEOAccountView, self).__init__()
+        super(CEOAccountOptions, self).__init__()
         self.ui = loadUi("Resources/interfaces/ceo_panel.ui", self)
         self.show()
         self.ui.stackedWidget.setCurrentWidget(self.ui.Welcome_page)
         self.new_port_button.clicked.connect(self.open_new_port_configuration)
-        self.configure_port_button.clicked.connect(self.open_port_configuration)
+        self.configure_port_button.clicked.connect(self.update_port_configuration)
         self.new_ship_button.clicked.connect(self.open_new_ship_configuration)
+        self.new_ship_cabin_button.clicked.connect(self.new_cabin_configuration)
 
     def open_new_port_configuration(self):
         """Opens widget with form for new port. After button is clicked, starts to check all ports details"""
         self.ui.stackedWidget.setCurrentWidget(self.ui.New_port_configuration)
         self.emp_title_back_to_first_page.clicked.connect(self.back_to_first_page)
 
-        GlobalFunctions.load_countries_list(self.country_comboBox)
+        LoadDataToComboBox.load_countries_list(self.country_comboBox)
         self.port_add_button.clicked.connect(self.check_all_port_details)
 
     def check_all_port_details(self):
@@ -66,10 +67,11 @@ class CEOAccountView(QDialog):
             self.close()
             AddPortObjectToDatabase.NewPortToDatabase(port_country, is_unique, port_capacity)
 
-    def open_port_configuration(self):
+    def update_port_configuration(self):
+        """Load interface with port update"""
         self.ui.stackedWidget.setCurrentWidget(self.ui.Port_configuration)
         self.emp_title_back_to_first_page.clicked.connect(self.back_to_first_page)
-        GlobalFunctions.load_ports(self.port_comboBox)
+        LoadDataToComboBox.load_ports(self.port_comboBox)
 
         self.change_port_details_button.clicked.connect(self.enter_updated_port_details_to_db)
 
@@ -85,13 +87,15 @@ class CEOAccountView(QDialog):
         self.successful_update_label.setText(prompt_user_info)
 
     def open_new_ship_configuration(self):
+        """Interface with new ship form"""
         self.ui.stackedWidget.setCurrentWidget(self.ui.New_ship_configuration)
         self.emp_title_back_to_first_page.clicked.connect(self.back_to_first_page)
 
-        GlobalFunctions.load_ports(self.port_identification_comboBox)
+        LoadDataToComboBox.load_ports(self.port_identification_comboBox)
         self.add_new_ship_button.clicked.connect(self.check_all_ship_details)
 
     def check_all_ship_details(self):
+        """Checks if all ship details are valid and/or don't violate constraint"""
         ship_details = CheckNewPortObjectDetails()
         ship_name = self.ship_name_edit.text()
         capacity = self.ship_capacity_spinBox.value()
@@ -106,7 +110,24 @@ class CEOAccountView(QDialog):
             self.close()
             AddPortObjectToDatabase.NewShipToDatabase(ship_name, capacity, port_id)
 
+    def new_cabin_configuration(self):
+        self.ui.stackedWidget.setCurrentWidget(self.New_ship_cabin)
+        self.emp_title_back_to_first_page.clicked.connect(self.back_to_first_page)
+        LoadDataToComboBox.load_port_ids(self.ship_id_comboBox)
+        self.ship_id_comboBox.currentIndexChanged.connect(self.load_ship_capacity_on_change)
+
+    def load_ship_capacity_on_change(self):
+        ship_name = self.ship_id_comboBox.currentText()
+
+        get_free_ship_cabins = 'SELECT COUNT(*) FROM ship_cabins JOIN ships USING(ship_id) ' \
+                               'WHERE ship_name = :given_name AND guests IS NULL'
+        DatabaseConnection.cursor.execute(get_free_ship_cabins, given_name=ship_name)
+        free_ship_cabins, = DatabaseConnection.cursor.fetchone()
+        print(free_ship_cabins)
+        self.available_cabins_number_label.setText('New cabins: ' + str(free_ship_cabins))
+
     def back_to_first_page(self):
+        """Open interface that user can see at the beginning"""
         self.ui.stackedWidget.setCurrentWidget(self.ui.Welcome_page)
 
 

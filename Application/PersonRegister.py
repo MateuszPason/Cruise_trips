@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QDialog
 from PyQt5.uic import loadUi
 import AddSomebodyToDatabase
-import GlobalFunctions
+import LoadDataToComboBox
 from CheckUserInputs import CheckRegisterDetails
 
 
@@ -11,7 +11,7 @@ class NewClient(QDialog):
         self.ui = loadUi("Resources/interfaces/client_register_form.ui", self)
         self.show()
 
-        GlobalFunctions.load_countries_list(self.country_comboBox)
+        LoadDataToComboBox.load_countries_list(self.country_comboBox)
         self.create_account_button.clicked.connect(self.check_all_client_details)
 
     def check_all_client_details(self):
@@ -37,7 +37,7 @@ class NewEmployee(QDialog):
         self.ui = loadUi("Resources/interfaces/employee_register_form.ui", self)
         self.show()
 
-        GlobalFunctions.load_countries_list(self.country_comboBox)
+        LoadDataToComboBox.load_countries_list(self.country_comboBox)
         self.create_account_button.clicked.connect(self.check_all_employee_details)
 
 
