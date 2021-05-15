@@ -18,10 +18,17 @@ class NewPortToDatabase:
 
 
 class NewShipToDatabase:
+    """Fetch primary key value for ship and add new ship to database"""
     def __init__(self, ship_name, capacity, port_id):
         cursor.execute('SELECT ships_seq.nextval FROM dual')
         id_increment, = cursor.fetchone()
         statement = 'INSERT INTO ships (ship_id, ship_name, capacity, home_port_id) VALUES (:1, :2, :3, :4)'
         cursor.execute(statement, (id_increment, ship_name, capacity, port_id))
+
+        for i in range(1, capacity+1):
+            cursor.execute('SELECT ship_cabins_seq.nextval FROM dual')
+            cabin_id, = cursor.fetchone()
+            statement = 'INSERT INTO ship_cabins (ship_cabin_id, ship_id, room_number) VALUES (:1, :2, :3)'
+            cursor.execute(statement, (cabin_id, id_increment, i))
         connection.commit()
-        """Add here interface that informs about successful ship add"""
+        SuccessfulNewEntryInDatabaseInfo.SuccessfulNewShip()
