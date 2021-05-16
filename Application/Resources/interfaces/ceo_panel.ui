@@ -1098,6 +1098,11 @@ color: #FFFFFF;
                  <height>16777215</height>
                 </size>
                </property>
+               <item>
+                <property name="text">
+                 <string>Choose ship</string>
+                </property>
+               </item>
               </widget>
              </item>
              <item row="0" column="1">
