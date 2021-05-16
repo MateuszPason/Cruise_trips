@@ -118,13 +118,18 @@ class CEOAccountOptions(QDialog):
 
     def load_ship_capacity_on_change(self):
         ship_name = self.ship_id_comboBox.currentText()
-
         get_free_ship_cabins = 'SELECT COUNT(*) FROM ship_cabins JOIN ships USING(ship_id) ' \
                                'WHERE ship_name = :given_name AND guests IS NULL'
         DatabaseConnection.cursor.execute(get_free_ship_cabins, given_name=ship_name)
         free_ship_cabins, = DatabaseConnection.cursor.fetchone()
-        print(free_ship_cabins)
         self.available_cabins_number_label.setText('New cabins: ' + str(free_ship_cabins))
+
+        get_rooms_to_edit = 'SELECT room_number FROM ship_cabins JOIN ships USING (ship_id)' \
+                            'WHERE ship_name = :given_name AND guests IS NULL'
+        self.room_number_comboBox.clear()
+        DatabaseConnection.cursor.execute(get_rooms_to_edit, given_name=ship_name)
+        for i in DatabaseConnection.cursor.fetchall():
+            self.room_number_comboBox.addItem(str(i[0]))
 
     def back_to_first_page(self):
         """Open interface that user can see at the beginning"""
