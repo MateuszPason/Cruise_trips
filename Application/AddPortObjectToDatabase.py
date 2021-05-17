@@ -32,3 +32,22 @@ class NewShipToDatabase:
             cursor.execute(statement, (cabin_id, id_increment, i))
         connection.commit()
         SuccessfulNewEntryInDatabaseInfo.SuccessfulNewShip()
+
+
+class NewShipCabinToDatabase:
+    """Add new ship cabin to database, based on data passed by CEO"""
+    def __init__(self, ship_name, room_number, room_type, number_of_guests, sq_m_cabin, sq_m_balcony):
+        get_ship_id = 'SELECT ship_id FROM ships WHERE ship_name = :given_name'
+        cursor.execute(get_ship_id, given_name=ship_name)
+        ship_id, = cursor.fetchone()
+        statement = 'UPDATE ship_cabins SET room_type = :1, guests = :2, sq_m = :3, balcony_sq_m = :4' \
+                    'WHERE ship_id = :5 AND room_number = :6'
+        print(ship_id)
+        print(type(room_number))
+        print(room_type)
+        print(number_of_guests)
+        print(sq_m_cabin)
+        print(sq_m_balcony)
+        cursor.execute(statement, (room_type, number_of_guests, sq_m_cabin, sq_m_balcony, ship_id, room_number))
+        connection.commit()
+        print('Dodano nowa kabine')

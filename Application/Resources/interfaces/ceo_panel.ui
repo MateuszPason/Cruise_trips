@@ -277,7 +277,7 @@ font-size: 12pt
          <string notr="true"/>
         </property>
         <property name="currentIndex">
-         <number>4</number>
+         <number>3</number>
         </property>
         <widget class="QWidget" name="Welcome_page">
          <property name="autoFillBackground">
@@ -1098,11 +1098,6 @@ color: #FFFFFF;
                  <height>16777215</height>
                 </size>
                </property>
-               <item>
-                <property name="text">
-                 <string>Choose ship</string>
-                </property>
-               </item>
               </widget>
              </item>
              <item row="0" column="1">
@@ -1125,6 +1120,12 @@ color: #FFFFFF;
                  <width>0</width>
                  <height>40</height>
                 </size>
+               </property>
+               <property name="minimum">
+                <number>10</number>
+               </property>
+               <property name="maximum">
+                <number>300</number>
                </property>
               </widget>
              </item>
@@ -1162,6 +1163,12 @@ color: #FFFFFF;
                  <height>40</height>
                 </size>
                </property>
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>8</number>
+               </property>
               </widget>
              </item>
              <item row="3" column="0">
@@ -1181,6 +1188,9 @@ color: #FFFFFF;
                  <width>0</width>
                  <height>40</height>
                 </size>
+               </property>
+               <property name="maximum">
+                <number>150</number>
                </property>
               </widget>
              </item>
