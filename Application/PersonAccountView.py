@@ -8,6 +8,7 @@ import AddPortObjectToDatabase
 
 class ClientAccountView(QDialog):
     """All details that client can see on the interface"""
+
     def __init__(self, email):
         super(ClientAccountView, self).__init__()
         self.ui = loadUi("Resources/interfaces/client_logged_account.ui", self)
@@ -24,6 +25,7 @@ class ClientAccountView(QDialog):
 
 class WhichEmployeeAccountView(QDialog):
     """Determine which employee logged in"""
+
     def __init__(self, email):
         super(WhichEmployeeAccountView, self).__init__()
         get_account_type = 'SELECT SUBSTR(employee_register_key, 1, 2) FROM employees WHERE email = :given_email'
@@ -35,6 +37,7 @@ class WhichEmployeeAccountView(QDialog):
 
 class CEOAccountOptions(QDialog):
     """All details that CEO can see on the interface"""
+
     def __init__(self):
         super(CEOAccountOptions, self).__init__()
         self.ui = loadUi("Resources/interfaces/ceo_panel.ui", self)
@@ -101,20 +104,25 @@ class CEOAccountOptions(QDialog):
         capacity = self.ship_capacity_spinBox.value()
         country_iso = self.port_identification_comboBox.currentText()[0:3]
         port_city = self.port_identification_comboBox.currentText()[4:]
-        get_port_id = 'SELECT port_id FROM ports WHERE country_iso = :given_ctr_iso AND city = :given_city'
-        DatabaseConnection.cursor.execute(get_port_id, given_ctr_iso=country_iso, given_city=port_city)
-        port_id, = DatabaseConnection.cursor.fetchone()
-        valid_ship_details = ship_details.check_new_ship_details(ship_name, port_id, self.ship_name_label_error,
-                                                                 self.error_ship_label)
-        if valid_ship_details:
-            self.close()
-            AddPortObjectToDatabase.NewShipToDatabase(ship_name, capacity, port_id)
+        if port_city == '':
+            self.error_ship_label.setText('Add port')
+        else:
+            get_port_id = 'SELECT port_id FROM ports WHERE country_iso = :given_ctr_iso AND city = :given_city'
+            DatabaseConnection.cursor.execute(get_port_id, given_ctr_iso=country_iso, given_city=port_city)
+            port_id, = DatabaseConnection.cursor.fetchone()
+            valid_ship_details = ship_details.check_new_ship_details(ship_name, port_id, self.ship_name_label_error,
+                                                                     self.error_ship_label)
+            if valid_ship_details:
+                self.close()
+                AddPortObjectToDatabase.NewShipToDatabase(ship_name, capacity, port_id)
 
     def new_cabin_configuration(self):
         self.ui.stackedWidget.setCurrentWidget(self.New_ship_cabin)
         self.emp_title_back_to_first_page.clicked.connect(self.back_to_first_page)
         LoadDataToComboBox.load_port_ids(self.ship_id_comboBox)
+        self.load_ship_capacity_on_change()
         self.ship_id_comboBox.currentIndexChanged.connect(self.load_ship_capacity_on_change)
+        self.add_new_cabin_button.clicked.connect(self.check_all_ship_cabin_details)
 
     def load_ship_capacity_on_change(self):
         ship_name = self.ship_id_comboBox.currentText()
@@ -124,6 +132,7 @@ class CEOAccountOptions(QDialog):
         free_ship_cabins, = DatabaseConnection.cursor.fetchone()
         self.available_cabins_number_label.setText('New cabins: ' + str(free_ship_cabins))
 
+        # Loading room numbers that you can still edit
         get_rooms_to_edit = 'SELECT room_number FROM ship_cabins JOIN ships USING (ship_id)' \
                             'WHERE ship_name = :given_name AND guests IS NULL'
         self.room_number_comboBox.clear()
@@ -131,8 +140,25 @@ class CEOAccountOptions(QDialog):
         for i in DatabaseConnection.cursor.fetchall():
             self.room_number_comboBox.addItem(str(i[0]))
 
+    def check_all_ship_cabin_details(self):
+        ship_name = self.ship_id_comboBox.currentText()
+        room_number = self.room_number_comboBox.currentText()
+        room_type = self.room_type_comboBox.currentText()
+        number_of_guests = self.guests_spinBox.value()
+        sq_m_cabin = self.cabin_meters_spinBox.value()
+        sq_m_balcony = self.balcony_meters_spinBox.value()
+        if room_type == 'Inside':
+            sq_m_balcony = 0
+
+        if ship_name == '':
+            self.available_cabins_number_label.setText('Add ships')
+        elif room_number == '':
+            self.available_cabins_number_label.setText('All of the rooms were assigned')
+        else:
+            self.close()
+            AddPortObjectToDatabase.NewShipCabinToDatabase(ship_name, room_number, room_type, number_of_guests, sq_m_cabin,
+                                                           sq_m_balcony)
+
     def back_to_first_page(self):
         """Open interface that user can see at the beginning"""
         self.ui.stackedWidget.setCurrentWidget(self.ui.Welcome_page)
-
-
