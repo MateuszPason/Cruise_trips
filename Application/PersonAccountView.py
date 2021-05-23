@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QDialog
 import LoadDataToComboBox
 from CheckUserInputs import CheckNewPortObjectDetails
 import AddPortObjectToDatabase
+import SuccessfulNewEntryInDatabaseInfo
 
 
 class ClientAccountView(QDialog):
@@ -47,6 +48,7 @@ class CEOAccountOptions(QDialog):
         self.configure_port_button.clicked.connect(self.update_port_configuration)
         self.new_ship_button.clicked.connect(self.open_new_ship_configuration)
         self.new_ship_cabin_button.clicked.connect(self.new_cabin_configuration)
+        self.assign_port_manager_button.clicked.connect(self.new_pm_to_port_configuration)
 
     def open_new_port_configuration(self):
         """Opens widget with form for new port. After button is clicked, starts to check all ports details"""
@@ -151,13 +153,48 @@ class CEOAccountOptions(QDialog):
             sq_m_balcony = 0
 
         if ship_name == '':
+            self.available_cabins_number_label.setStyleSheet("color: red")
             self.available_cabins_number_label.setText('Add ships')
         elif room_number == '':
+            self.available_cabins_number_label.setStyleSheet("color: red")
             self.available_cabins_number_label.setText('All of the rooms were assigned')
         else:
             self.close()
             AddPortObjectToDatabase.NewShipCabinToDatabase(ship_name, room_number, room_type, number_of_guests, sq_m_cabin,
                                                            sq_m_balcony)
+
+    def new_pm_to_port_configuration(self):
+        self.ui.stackedWidget.setCurrentWidget(self.ui.Assign_port_manger)
+        add_available_pms_to_combobox = "SELECT email FROM employees WHERE SUBSTR(employee_register_key, 1, 2) = " \
+                                        "'PM' AND port_id IS NULL AND email IS NOT NULL"
+        self.port_managers_comboBox.clear()
+        DatabaseConnection.cursor.execute(add_available_pms_to_combobox)
+        for i in DatabaseConnection.cursor.fetchall():
+            self.port_managers_comboBox.addItem(str(i[0]))
+
+        add_available_ports_to_combobox = "SELECT port_id FROM ports MINUS SELECT port_id FROM employees"
+        self.ports_comboBox.clear()
+        DatabaseConnection.cursor.execute(add_available_ports_to_combobox)
+        for i in DatabaseConnection.cursor.fetchall():
+            self.ports_comboBox.addItem(str(i[0]))
+
+        self.assign_button.clicked.connect(self.check_all_port_manager_details)
+
+    def check_all_port_manager_details(self):
+        if self.port_managers_comboBox.currentText() == '':
+            self.port_manager_error_label.setText('Hire port manager')
+        elif self.ports_comboBox.currentText() == '':
+            self.port_error_label.setText('Add port')
+        else:
+            self.port_manager_error_label.setText('')
+            self.port_error_label.setText('')
+            port_manager = self.port_managers_comboBox.currentText()
+            port_number = self.ports_comboBox.currentText()
+            assign_pm_to_port = "UPDATE employees SET port_id = :given_port_number WHERE email = :given_manager"
+            DatabaseConnection.cursor.execute(assign_pm_to_port, (port_number, port_manager))
+            DatabaseConnection.connection.commit()
+            self.close()
+            SuccessfulNewEntryInDatabaseInfo.SuccessfulManagerAssign()
 
     def back_to_first_page(self):
         """Open interface that user can see at the beginning"""

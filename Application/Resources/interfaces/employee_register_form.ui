@@ -324,6 +324,17 @@ color: #FFFFFF;
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>email_edit</tabstop>
+  <tabstop>first_name_edit</tabstop>
+  <tabstop>last_name_edit</tabstop>
+  <tabstop>phone_edit</tabstop>
+  <tabstop>password_edit</tabstop>
+  <tabstop>re_password_edit</tabstop>
+  <tabstop>register_key_edit</tabstop>
+  <tabstop>country_comboBox</tabstop>
+  <tabstop>create_account_button</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
