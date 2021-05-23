@@ -34,6 +34,8 @@ class WhichEmployeeAccountView(QDialog):
         account_type, = DatabaseConnection.cursor.fetchone()
         if account_type is None:
             CEOAccountOptions()
+        elif account_type == 'PM':
+            PMAccountOptions(email)
 
 
 class CEOAccountOptions(QDialog):
@@ -195,6 +197,41 @@ class CEOAccountOptions(QDialog):
             DatabaseConnection.connection.commit()
             self.close()
             SuccessfulNewEntryInDatabaseInfo.SuccessfulManagerAssign()
+
+    def back_to_first_page(self):
+        """Open interface that user can see at the beginning"""
+        self.ui.stackedWidget.setCurrentWidget(self.ui.Welcome_page)
+
+
+class PMAccountOptions(QDialog):
+    """All details that port manager can see on the interface"""
+    def __init__(self, email):
+        super(PMAccountOptions, self).__init__()
+        self.ui = loadUi("Resources/interfaces/pm_panel.ui", self)
+        self.show()
+        check_if_user_assigned = "SELECT port_id FROM employees WHERE email = :account_email"
+        DatabaseConnection.cursor.execute(check_if_user_assigned, email)
+        assigned_port, = DatabaseConnection.cursor.fetchone()
+        if assigned_port is None:
+            self.port_info_button.setEnabled(False)
+            self.ui.stackedWidget.setCurrentWidget(self.No_port_assigned_info)
+        else:
+            self.ui.stackedWidget.setCurrentWidget(self.Welcome_page)
+            self.port_info_button.clicked.connect(lambda: self.load_port_details(assigned_port))
+
+    def load_port_details(self, port_number):
+        self.ui.stackedWidget.setCurrentWidget(self.Info_about_assigned_port)
+        self.emp_title_back_to_first_page.clicked.connect(self.back_to_first_page)
+        get_port_details = "SELECT * FROM ports WHERE port_id = :given_port_id"
+        DatabaseConnection.cursor.execute(get_port_details, given_port_id=port_number)
+        port_details = DatabaseConnection.cursor.fetchone()
+        get_country_name = "SELECT country_name FROM countries WHERE country_iso = :given_iso"
+        DatabaseConnection.cursor.execute(get_country_name, given_iso=port_details[1])
+        country_name, = DatabaseConnection.cursor.fetchone()
+        self.port_id_label.setText('Port id: ' + str(port_details[0]))
+        self.port_country_label.setText('Country: ' + country_name)
+        self.port_city_label.setText('City: ' + str(port_details[2]))
+        self.port_capacity_label.setText('Maximum capacity: ' + str(port_details[3]))
 
     def back_to_first_page(self):
         """Open interface that user can see at the beginning"""
