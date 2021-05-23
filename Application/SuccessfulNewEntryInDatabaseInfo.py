@@ -10,9 +10,9 @@ class SuccessfulRegister(QDialog):
         super(SuccessfulRegister, self).__init__()
         self.ui = loadUi("Resources/interfaces/successful_register.ui", self)
         self.show()
-        self.login_button.clicked.connect(self.to_main_window)
+        self.login_button.clicked.connect(self.to_ceo_panel)
 
-    def to_main_window(self):
+    def to_ceo_panel(self):
         self.close()
         loginOrRegisterForm.OpeningWindow()
 
@@ -37,6 +37,32 @@ class SuccessfulNewShip(QDialog):
         self.ui = loadUi("Resources/interfaces/Successful_ship_add.ui", self)
         self.show()
         self.ship_added_button.clicked.connect(self.to_ceo_panel)
+
+    def to_ceo_panel(self):
+        self.close()
+        PersonAccountView.CEOAccountOptions()
+
+
+class SuccessfulNewShipCabin(QDialog):
+    """Load interface after successful ship cabin add"""
+    def __init__(self):
+        super(SuccessfulNewShipCabin, self).__init__()
+        self.ui = loadUi("Resources/interfaces/Successful_ship_cabin_add.ui", self)
+        self.show()
+        self.go_back.clicked.connect(self.to_ceo_panel)
+
+    def to_ceo_panel(self):
+        self.close()
+        PersonAccountView.CEOAccountOptions()
+
+
+class SuccessfulManagerAssign(QDialog):
+    """Load interface after successful port manager assign to specific port"""
+    def __init__(self):
+        super(SuccessfulManagerAssign, self).__init__()
+        self.ui = loadUi("Resources/interfaces/Successful_pm_assign.ui", self)
+        self.show()
+        self.go_back.clicked.connect(self.to_ceo_panel)
 
     def to_ceo_panel(self):
         self.close()

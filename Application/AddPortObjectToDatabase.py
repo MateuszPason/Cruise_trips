@@ -42,12 +42,6 @@ class NewShipCabinToDatabase:
         ship_id, = cursor.fetchone()
         statement = 'UPDATE ship_cabins SET room_type = :1, guests = :2, sq_m = :3, balcony_sq_m = :4' \
                     'WHERE ship_id = :5 AND room_number = :6'
-        print(ship_id)
-        print(type(room_number))
-        print(room_type)
-        print(number_of_guests)
-        print(sq_m_cabin)
-        print(sq_m_balcony)
         cursor.execute(statement, (room_type, number_of_guests, sq_m_cabin, sq_m_balcony, ship_id, room_number))
         connection.commit()
-        print('Dodano nowa kabine')
+        SuccessfulNewEntryInDatabaseInfo.SuccessfulNewShipCabin()
