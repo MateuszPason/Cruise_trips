@@ -45,3 +45,31 @@ class NewShipCabinToDatabase:
         cursor.execute(statement, (room_type, number_of_guests, sq_m_cabin, sq_m_balcony, ship_id, room_number))
         connection.commit()
         SuccessfulNewEntryInDatabaseInfo.SuccessfulNewShipCabin()
+
+
+class NewTripToDatabase:
+    """Add new trip with details passed by port manager"""
+    def __init__(self, trip_name, trip_price, ship_name, start_date, end_date, port_number):
+        cursor.execute('SELECT trip_seq.nextval FROM dual')
+        trip_id, = cursor.fetchone()
+        get_leaving_country_iso = 'SELECT country_iso FROM ports WHERE port_id = :given_port_id'
+        cursor.execute(get_leaving_country_iso, given_port_id=port_number)
+        country_iso, = cursor.fetchone()
+        get_country_name = 'SELECT country_name FROM countries WHERE country_iso = :given_iso'
+        cursor.execute(get_country_name, given_iso=country_iso)
+        country_name, = cursor.fetchone()
+        get_leaving_city = 'SELECT city FROM ports WHERE port_id = :given_port_id'
+        cursor.execute(get_leaving_city, given_port_id=port_number)
+        leaving_city, = cursor.fetchone()
+        insert_trip_details = "INSERT INTO trips (trip_id, name, price, leaving_from_country, leaving_from_city," \
+                              " start_date, end_date, onboard) VALUES (:1, :2, :3, :4, :5, TO_DATE(:6, 'DD/MM/YYYY')," \
+                              " TO_DATE(:7, 'DD/MM/YYYY'), :8)"
+        cursor.execute(insert_trip_details, (trip_id, trip_name, trip_price, country_name, leaving_city, start_date,
+                                             end_date, ship_name))
+        connection.commit()
+
+        """This email is used to reload used account after successful trip add"""
+        get_email = 'SELECT email FROM employees WHERE port_id = :given_port_id'
+        cursor.execute(get_email, given_port_id=port_number)
+        emp_email, = cursor.fetchone()
+        SuccessfulNewEntryInDatabaseInfo.SuccessfulNewTrip(emp_email)

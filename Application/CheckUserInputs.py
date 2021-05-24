@@ -118,3 +118,28 @@ class CheckNewPortObjectDetails:
             return False
         set_error_ship_label.setText('')
         return True
+
+
+class CheckNewTripDetails:
+    def check_trip_name(self, trip_name, name_error_label):
+        trip_name.strip()
+        if len(trip_name) == 0:
+            name_error_label.setText('Enter valid trip name')
+            return False
+        name_error_label.setText('')
+        return trip_name
+
+    def check_for_existing_ship_in_port(self, onboard_lineedit, onboard_error_label):
+        if len(onboard_lineedit) == 0:
+            onboard_error_label.setText('No available ships for trip')
+            return False
+        onboard_error_label.setText('')
+        return onboard_lineedit
+
+    def check_if_date_is_valid(self, start_date, end_date, date_error_label):
+        difference = start_date.daysTo(end_date)
+        if difference <= 0:
+            date_error_label.setText('End date must be after start date')
+            return False
+        date_error_label.setText('')
+        return start_date, end_date

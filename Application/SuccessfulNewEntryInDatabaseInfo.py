@@ -67,3 +67,16 @@ class SuccessfulManagerAssign(QDialog):
     def to_ceo_panel(self):
         self.close()
         PersonAccountView.CEOAccountOptions()
+
+
+class SuccessfulNewTrip(QDialog):
+    """Load interface after successful trip add"""
+    def __init__(self, email):
+        super(SuccessfulNewTrip, self).__init__()
+        self.ui = loadUi("Resources/interfaces/Successful_trip_add.ui", self)
+        self.show()
+        self.go_back.clicked.connect(lambda: self.to_ceo_panel(email))
+
+    def to_ceo_panel(self, email):
+        self.close()
+        PersonAccountView.PMAccountOptions(email)

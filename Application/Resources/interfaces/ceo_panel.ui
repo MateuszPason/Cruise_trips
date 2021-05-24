@@ -92,7 +92,7 @@ color: #FFFFFF;
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>60</y>
+        <y>70</y>
         <width>110</width>
         <height>231</height>
        </rect>
