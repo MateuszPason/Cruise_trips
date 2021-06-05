@@ -12,16 +12,8 @@ class ClientAccountView(QDialog):
 
     def __init__(self, email):
         super(ClientAccountView, self).__init__()
-        self.ui = loadUi("Resources/interfaces/client_logged_account.ui", self)
+        self.ui = loadUi("Resources/interfaces/client_panel.ui", self)
         self.show()
-        get_client_details = 'SELECT first_name FROM clients WHERE email = :email'
-        DatabaseConnection.cursor.execute(get_client_details, email=email)
-        for row in DatabaseConnection.cursor:
-            self.client_name.setText(row[0])
-        self.log_out_client_button.clicked.connect(self.log_out_client)
-
-    def log_out_client(self):
-        self.close()
 
 
 class WhichEmployeeAccountView(QDialog):
