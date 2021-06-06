@@ -1,6 +1,8 @@
+from PySide2 import *
+from PyQt5.QtCore import QSize, QRect, QCoreApplication
 import DatabaseConnection
 from PyQt5.uic import loadUi
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QFrame, QVBoxLayout, QLabel, QSizePolicy, QSpacerItem, QGridLayout
 import LoadDataToComboBox
 from CheckUserInputs import CheckNewPortObjectDetails, CheckNewTripDetails
 import AddPortObjectToDatabase
@@ -9,12 +11,89 @@ import SuccessfulNewEntryInDatabaseInfo
 
 class ClientAccountView(QDialog):
     """All details that client can see on the interface"""
-
     def __init__(self, email):
         super(ClientAccountView, self).__init__()
         self.ui = loadUi("Resources/interfaces/client_panel.ui", self)
         self.show()
-        
+        self.open_trips_button.clicked.connect(self.open_all_trips)
+        self.emp_title_back_to_first_page.clicked.connect(self.back_to_first_page)
+
+    def open_all_trips(self):
+        self.ui.stackedWidget.setCurrentWidget(self.ui.Trips_page)
+        get_number_of_trips_to_load = 'SELECT COUNT(*) FROM trips'
+        DatabaseConnection.cursor.execute(get_number_of_trips_to_load)
+        number_of_trips, = DatabaseConnection.cursor.fetchone()
+
+        get_trips_details = 'SELECT * FROM trips'
+        DatabaseConnection.cursor.execute(get_trips_details)
+        trip_details = DatabaseConnection.cursor.fetchall()
+        for i in range(number_of_trips):
+            trip_name = trip_details[i][1]
+            trip_price = str(trip_details[i][2])
+            trip_country = trip_details[i][3]
+            trip_city = trip_details[i][4]
+            trip_start = str(trip_details[i][5])
+            trip_end = str(trip_details[i][6])
+            trip_ship = trip_details[i][7]
+            self.create_new_widget(i, 0, trip_name, trip_price, trip_country, trip_city, trip_start, trip_end,
+                                   trip_ship)
+
+    def back_to_first_page(self):
+        self.ui.stackedWidget.setCurrentWidget(self.Welcome_page)
+
+    def create_new_widget(self, row, column, trip_name, trip_price, trip_country, trip_city, trip_start, trip_end,
+                          trip_ship):
+
+        self.single_trip = QFrame(self.ui.scrollAreaWidgetContents)
+        self.single_trip.setObjectName(u"single_trip")
+        self.single_trip.setMinimumSize(QSize(0, 125))
+        self.single_trip.setMaximumSize(QSize(16777215, 125))
+        self.single_trip.setStyleSheet(u"")
+        self.single_trip.setFrameShape(QFrame.StyledPanel)
+        self.single_trip.setFrameShadow(QFrame.Raised)
+        self.gridLayout_2 = QGridLayout(self.ui.single_trip)
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
+
+        self.name_label = QLabel(self.single_trip)
+        self.name_label.setObjectName(u"name_label")
+        self.name_label.setText(QCoreApplication.translate("Dialog", 'Name: ' + trip_name, None))
+        self.gridLayout_2.addWidget(self.name_label, 0, 0, 1, 1)
+
+        self.price_label = QLabel(self.single_trip)
+        self.price_label.setObjectName(u"price_label")
+        self.price_label.setText(QCoreApplication.translate("Dialog", 'Price: ' + trip_price, None))
+        self.gridLayout_2.addWidget(self.price_label, 0, 3, 1, 1)
+
+        self.country_label = QLabel(self.single_trip)
+        self.country_label.setObjectName(u"country_label")
+        self.country_label.setText(QCoreApplication.translate("Dialog", 'Sail out of: ' + trip_country, None))
+        self.gridLayout_2.addWidget(self.country_label, 1, 0, 1, 1)
+
+        self.city_label = QLabel(self.single_trip)
+        self.city_label.setObjectName(u"city_label")
+        self.city_label.setText(QCoreApplication.translate("Dialog", trip_city, None))
+        self.gridLayout_2.addWidget(self.city_label, 1, 1, 1, 1)
+
+        self.start_label = QLabel(self.single_trip)
+        self.start_label.setObjectName(u"start_label")
+        self.start_label.setText(QCoreApplication.translate("Dialog", 'Date: ' + trip_start[0:10], None))
+        self.gridLayout_2.addWidget(self.start_label, 1, 2, 1, 1)
+
+        self.end_label = QLabel(self.single_trip)
+        self.end_label.setObjectName(u"end_label")
+        self.end_label.setText(QCoreApplication.translate("Dialog", trip_end[0:10], None))
+        self.gridLayout_2.addWidget(self.end_label, 1, 3, 1, 1)
+
+        self.ship_label = QLabel(self.single_trip)
+        self.ship_label.setObjectName(u"ship_label")
+        self.ship_label.setText(QCoreApplication.translate("Dialog", 'Ship: ' + trip_ship, None))
+        self.gridLayout_2.addWidget(self.ship_label, 2, 0, 1, 1)
+
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.gridLayout_2.addItem(self.horizontalSpacer, 0, 1, 1, 1)
+
+        self.gridLayout.addWidget(self.single_trip, row, column, 1, 1)
+
 
 class WhichEmployeeAccountView(QDialog):
     """Determine which employee logged in"""
@@ -229,6 +308,12 @@ class PMAccountOptions(QDialog):
 
     def organize_new_trip(self, port_number):
         self.ui.stackedWidget.setCurrentWidget(self.New_trip)
+
+        # Need this solution for a moment, because if user switch widgets from organize trip to another and then
+        # again to organize trip he can add multiple trips with the same details, which means user violates constraints
+        self.port_info_button.setEnabled(False)
+        self.emp_title_back_to_first_page.setEnabled(False)
+
         self.emp_title_back_to_first_page.clicked.connect(self.back_to_first_page)
         LoadDataToComboBox.load_ships_available_for_trip(self.onboard_combobox, port_number)
         self.add_trip_button.clicked.connect(lambda: self.check_trip_details(port_number))
