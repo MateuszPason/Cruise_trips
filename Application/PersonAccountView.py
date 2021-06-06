@@ -14,7 +14,7 @@ class ClientAccountView(QDialog):
         super(ClientAccountView, self).__init__()
         self.ui = loadUi("Resources/interfaces/client_panel.ui", self)
         self.show()
-
+        
 
 class WhichEmployeeAccountView(QDialog):
     """Determine which employee logged in"""
