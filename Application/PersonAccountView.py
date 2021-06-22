@@ -353,7 +353,7 @@ class PMAccountOptions(QDialog):
         self.ui = loadUi("Resources/interfaces/pm_panel.ui", self)
         self.show()
         check_if_user_assigned = "SELECT port_id FROM employees WHERE email = :account_email"
-        DatabaseConnection.cursor.execute(check_if_user_assigned, email)
+        DatabaseConnection.cursor.execute(check_if_user_assigned, account_email=email)
         assigned_port, = DatabaseConnection.cursor.fetchone()
         if assigned_port is None:
             self.port_info_button.setEnabled(False)
@@ -361,8 +361,8 @@ class PMAccountOptions(QDialog):
             self.ui.stackedWidget.setCurrentWidget(self.No_port_assigned_info)
         else:
             self.ui.stackedWidget.setCurrentWidget(self.Welcome_page)
-            self.port_info_button.clicked.connect(lambda: self.load_port_details(assigned_port))
-            self.organize_trip_button.clicked.connect(lambda: self.organize_new_trip(assigned_port))
+        self.port_info_button.clicked.connect(lambda: self.load_port_details(assigned_port))
+        self.organize_trip_button.clicked.connect(lambda: self.organize_new_trip(assigned_port))
 
     def load_port_details(self, port_number):
         self.ui.stackedWidget.setCurrentWidget(self.Info_about_assigned_port)

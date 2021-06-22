@@ -259,7 +259,7 @@ font-size: 12pt
          <string notr="true"/>
         </property>
         <property name="currentIndex">
-         <number>3</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="No_port_assigned_info">
          <layout class="QHBoxLayout" name="horizontalLayout_3">

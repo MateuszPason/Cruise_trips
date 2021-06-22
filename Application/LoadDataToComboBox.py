@@ -13,7 +13,6 @@ def load_ports(ships_combobox):
     """Get number of rows in ports table"""
     result, = DatabaseConnection.cursor.execute("SELECT COUNT(*) FROM ports").fetchone()
 
-    """Load all ports that user can modify"""
     port_identification = DatabaseConnection.cursor.execute('SELECT country_iso, city FROM ports').fetchall()
     for i in range(result):
         item_to_port_combobox = port_identification[i][0] + ' ' + port_identification[i][1]
