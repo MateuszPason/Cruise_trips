@@ -1,10 +1,9 @@
-from PySide2 import *
-from PyQt5.QtCore import QSize, QRect, QCoreApplication
+from PyQt5.QtCore import QSize, QCoreApplication, Qt
 import DatabaseConnection
 from PyQt5.uic import loadUi
-from PyQt5.QtWidgets import QDialog, QFrame, QVBoxLayout, QLabel, QSizePolicy, QSpacerItem, QGridLayout
+from PyQt5.QtWidgets import QDialog, QFrame, QLabel, QSizePolicy, QSpacerItem, QGridLayout
 import LoadDataToComboBox
-from CheckUserInputs import CheckNewPortObjectDetails, CheckNewTripDetails
+from CheckUserInputs import CheckNewPortObjectDetails, CheckNewTripDetails, CheckDetailsTripToBook
 import AddPortObjectToDatabase
 import SuccessfulNewEntryInDatabaseInfo
 
@@ -17,6 +16,7 @@ class ClientAccountView(QDialog):
         self.show()
         self.open_trips_button.clicked.connect(self.open_all_trips)
         self.emp_title_back_to_first_page.clicked.connect(self.back_to_first_page)
+        self.menu_trip_button.clicked.connect(lambda: self.trip_booking(email))
 
     def open_all_trips(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.Trips_page)
@@ -61,6 +61,7 @@ class ClientAccountView(QDialog):
 
         self.price_label = QLabel(self.single_trip)
         self.price_label.setObjectName(u"price_label")
+        self.price_label.setAlignment(Qt.AlignRight)
         self.price_label.setText(QCoreApplication.translate("Dialog", 'Price: ' + trip_price, None))
         self.gridLayout_2.addWidget(self.price_label, 0, 3, 1, 1)
 
@@ -94,6 +95,65 @@ class ClientAccountView(QDialog):
 
         self.gridLayout.addWidget(self.single_trip, row, column, 1, 1)
 
+    def trip_booking(self, email):
+        self.ui.stackedWidget.setCurrentWidget(self.Choose_trip_page)
+        LoadDataToComboBox.load_trips(self.trip_combobox)
+
+        get_number_of_available_trips = 'SELECT COUNT(*) FROM trips'
+        DatabaseConnection.cursor.execute(get_number_of_available_trips)
+        number_of_available_trips, = DatabaseConnection.cursor.fetchone()
+        if number_of_available_trips == 0:
+            self.ui.stackedWidget.setCurrentWidget(self.Choose_trip_page)
+            self.trip_name_error_label.setText('No trips available')
+        else:
+            self.load_trips_on_change()
+
+        self.trip_combobox.currentTextChanged.connect(self.load_trips_on_change)
+        self.book_button.clicked.connect(lambda: self.check_details_of_trip_to_book(email))
+
+    def load_trips_on_change(self):
+        trip_name = self.trip_combobox.currentText()
+        get_ship_name_assigned_to_trip = 'SELECT onboard FROM trips WHERE name = :given_trip_name'
+        DatabaseConnection.cursor.execute(get_ship_name_assigned_to_trip, given_trip_name=trip_name)
+        ship_name_assigned_to_trip, = DatabaseConnection.cursor.fetchone()
+        get_ship_id_assigned_to_trip = 'SELECT ship_id FROM ships WHERE ship_name = :given_ship_name'
+        DatabaseConnection.cursor.execute(get_ship_id_assigned_to_trip, given_ship_name=ship_name_assigned_to_trip)
+        ship_id_assigned_to_trip, = DatabaseConnection.cursor.fetchone()
+
+        get_number_of_available_ship_cabins = "SELECT COUNT(*) FROM ship_cabins WHERE room_type IS NOT NULL AND" \
+                                              " reserved = 'F' AND ship_id = :given_ship_id"
+        DatabaseConnection.cursor.execute(get_number_of_available_ship_cabins, given_ship_id=ship_id_assigned_to_trip)
+        number_of_available_ship_cabins, = DatabaseConnection.cursor.fetchone()
+
+        get_available_ship_cabins_for_trip = "SELECT room_number, room_type, guests, sq_m, balcony_sq_m FROM" \
+                                             " ship_cabins WHERE" \
+                                             " room_type IS NOT NULL AND reserved = 'F' AND ship_id = :given_ship_id"
+        DatabaseConnection.cursor.execute(get_available_ship_cabins_for_trip, given_ship_id=ship_id_assigned_to_trip)
+        available_ship_cabins_for_trip = DatabaseConnection.cursor.fetchall()
+        self.cabin_combobox.clear()
+        for i in range(number_of_available_ship_cabins):
+            room_number = available_ship_cabins_for_trip[i][0]
+            cabin_type = available_ship_cabins_for_trip[i][1]
+            cabin_guest = available_ship_cabins_for_trip[i][2]
+            cabin_sq_m = available_ship_cabins_for_trip[i][3]
+            cabin_balcony_sq_m = available_ship_cabins_for_trip[i][4]
+            self.cabin_combobox.addItem(str('Cabin type: ') + cabin_type +
+                                        str(' Guests: ') + str(cabin_guest)
+                                        + str(' Square meters: ') + str(cabin_sq_m) + str(' Balcony square meters: ')
+                                        + str(cabin_balcony_sq_m) + str(' Room number:  ') + room_number)
+
+    def check_details_of_trip_to_book(self, email):
+        check_trip_to_book = CheckDetailsTripToBook()
+        trip_name = self.trip_combobox.currentText()
+        trip_name_check = check_trip_to_book.check_trip_name(trip_name, self.trip_name_error_label)
+        cabin = self.cabin_combobox.currentText()
+        cabin_check = check_trip_to_book.check_room_to_book(cabin, self.cabin_error_label)
+        room_number = cabin[-3:].strip()
+
+        if trip_name_check and cabin_check:
+            AddPortObjectToDatabase.NewBookedTrip(email, trip_name, room_number)
+            self.close()
+
 
 class WhichEmployeeAccountView(QDialog):
     """Determine which employee logged in"""
@@ -122,6 +182,7 @@ class CEOAccountOptions(QDialog):
         self.new_ship_button.clicked.connect(self.open_new_ship_configuration)
         self.new_ship_cabin_button.clicked.connect(self.new_cabin_configuration)
         self.assign_port_manager_button.clicked.connect(self.new_pm_to_port_configuration)
+        self.new_pm_slot.clicked.connect(self.new_pm_slot_to_database)
 
     def open_new_port_configuration(self):
         """Opens widget with form for new port. After button is clicked, starts to check all ports details"""
@@ -224,7 +285,6 @@ class CEOAccountOptions(QDialog):
         sq_m_balcony = self.balcony_meters_spinBox.value()
         if room_type == 'Inside':
             sq_m_balcony = 0
-
         if ship_name == '':
             self.available_cabins_number_label.setStyleSheet("color: red")
             self.available_cabins_number_label.setText('Add ships')
@@ -233,8 +293,8 @@ class CEOAccountOptions(QDialog):
             self.available_cabins_number_label.setText('All of the rooms were assigned')
         else:
             self.close()
-            AddPortObjectToDatabase.NewShipCabinToDatabase(ship_name, room_number, room_type, number_of_guests, sq_m_cabin,
-                                                           sq_m_balcony)
+            AddPortObjectToDatabase.NewShipCabinToDatabase(ship_name, room_number, room_type, number_of_guests,
+                                                           sq_m_cabin, sq_m_balcony)
 
     def new_pm_to_port_configuration(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.Assign_port_manger)
@@ -268,6 +328,18 @@ class CEOAccountOptions(QDialog):
             DatabaseConnection.connection.commit()
             self.close()
             SuccessfulNewEntryInDatabaseInfo.SuccessfulManagerAssign()
+
+    def new_pm_slot_to_database(self):
+        DatabaseConnection.cursor.execute('SELECT pm_slot_number.nextval FROM dual')
+        pm_number_using_sequence, = DatabaseConnection.cursor.fetchone()
+        pm_code = 'PM' + str(pm_number_using_sequence)
+        DatabaseConnection.cursor.execute('SELECT employees_id.nextval FROM dual')
+        employee_id, = DatabaseConnection.cursor.fetchone()
+
+        insert_new_slot_for_pm = 'INSERT INTO employees (employee_id, employee_register_key) VALUES (:1, :2)'
+        DatabaseConnection.cursor.execute(insert_new_slot_for_pm, (employee_id, pm_code))
+        DatabaseConnection.connection.commit()
+        self.pm_slot_info.setText('Slot added')
 
     def back_to_first_page(self):
         """Open interface that user can see at the beginning"""

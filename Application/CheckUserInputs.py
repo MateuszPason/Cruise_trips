@@ -143,3 +143,19 @@ class CheckNewTripDetails:
             return False
         date_error_label.setText('')
         return start_date, end_date
+
+
+class CheckDetailsTripToBook:
+    def check_trip_name(self, trip_name, trip_name_error_label):
+        if len(trip_name) == 0:
+            trip_name_error_label.setText('There is no trip to book')
+            return False
+        trip_name_error_label.setText('')
+        return trip_name
+
+    def check_room_to_book(self, room, room_error_label):
+        if len(room) == 0:
+            room_error_label.setText('No available ship cabins for this trip')
+            return False
+        room_error_label.setText('')
+        return room

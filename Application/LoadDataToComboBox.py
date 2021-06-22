@@ -33,3 +33,11 @@ def load_ships_available_for_trip(onboard_combobox, port_number):
     DatabaseConnection.cursor.execute(get_all_valid_ships, given_port=port_number)
     for i in DatabaseConnection.cursor.fetchall():
         onboard_combobox.addItem(str(i[0]))
+
+
+def load_trips(trips_combobox):
+    get_available_trip_names = 'SELECT name FROM trips'
+    trips_combobox.clear()
+    DatabaseConnection.cursor.execute(get_available_trip_names)
+    for i in DatabaseConnection.cursor.fetchall():
+        trips_combobox.addItem(str(i[0]))

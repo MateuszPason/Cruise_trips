@@ -73,3 +73,23 @@ class NewTripToDatabase:
         cursor.execute(get_email, given_port_id=port_number)
         emp_email, = cursor.fetchone()
         SuccessfulNewEntryInDatabaseInfo.SuccessfulNewTrip(emp_email)
+
+
+class NewBookedTrip:
+    def __init__(self, email, trip_name, room_number):
+        get_trip_id_based_on_name = 'SELECT trip_id FROM trips WHERE name = :given_trip_name'
+        cursor.execute(get_trip_id_based_on_name, given_trip_name=trip_name)
+        trip_id_based_on_name, = cursor.fetchone()
+
+        get_client_id_based_on_email = 'SELECT id FROM clients WHERE email = :given_email'
+        cursor.execute(get_client_id_based_on_email, given_email=email)
+        client_id_based_on_email, = cursor.fetchone()
+
+        insert_booking_details = 'INSERT INTO reserved_trips (trip_id, client_id, room_number) VALUES (:1, :2, :3)'
+        cursor.execute(insert_booking_details, (trip_id_based_on_name, client_id_based_on_email, room_number))
+
+        mark_ship_cabin_as_reserved = "UPDATE ship_cabins SET reserved = 'T' WHERE room_number = :given_number"
+        cursor.execute(mark_ship_cabin_as_reserved, given_number=room_number)
+        connection.commit()
+
+        SuccessfulNewEntryInDatabaseInfo.SuccessfulBookedTtrip(email)
